@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ca">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Arcade Blast</title>
+    <link rel="icon" href="images/icons/arcadeblast_icon.png" type="image/png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+        
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-image: url('../Code/images/wallpapers/2134.png');
+            background-size: cover;
+            background-color: #1f0153;
+            color: #f6f4f4;
+            overflow-x: hidden;
+        }
+        
+        .title-letter {
+            display: inline-block;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .title-letter:hover {
+            cursor: pointer;
+        }
+
+        @keyframes jump {
+            0% { transform: translateY(0); }
+            30% { transform: translateY(-30px); }
+            60% { transform: translateY(0); }
+        }
+
+        .jump {
+            animation: jump 0.5s ease-in-out;
+        }
+
+        .coin {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background-image: url('images/others/marioCoin.png'); /* Imagen de la moneda */
+            background-size: cover;
+            animation: coin-animation 1s ease-in-out forwards;
+        }
+
+        @keyframes coin-animation {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-50px); }
+        }   
+        
+        .header {
+            background-color: #1f0153;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .title-space {
+        display: inline-block;
+        width: 20px; /* Ajusta el ancho del espacio según sea necesario */
+        }
+        .down {
+            background-color: #1f0153;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 70px;
+            color: #f6f4f4;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            text-align: center;
+        }
+
+        .footer-content a {
+            color: #f6f4f4;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+
+        .footer-content a:hover {
+            text-decoration: underline;
+        }
+
+        .header .menu-icon {
+            font-size: 1.5em;
+            cursor: pointer;
+            z-index: 1100;
+        }
+
+        .header .search-bar {
+            background: #f6f4f4;
+            border: none;
+            border-radius: 20px;
+            padding: 5px 20px;
+            width: 60%;
+            font-size: 1em;
+        }
+
+        .header .user-icon {
+            font-size: 1.5em;
+            cursor: pointer;
+            z-index: 1100;
+        }
+
+        .side-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 250px;
+            background-color: #1f0153;
+            padding: 20px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .side-panel.active {
+            transform: translateX(0);
+        }
+
+        .side-panel ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .side-panel ul li {
+            margin: 20px 0;
+        }
+
+        .side-panel ul li a {
+            color: #f6f4f4;
+            text-decoration: none;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+        }
+
+        .side-panel ul li a i {
+            margin-right: 10px;
+        }
+
+        .user-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 250px;
+            background-color: #1f0153;
+            padding: 20px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .user-panel.active {
+            transform: translateX(0);
+        }
+
+        .user-panel ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .user-panel ul li {
+            margin: 20px 0;
+        }
+
+        .user-panel ul li a {
+            color: #f6f4f4;
+            text-decoration: none;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-panel ul li a i {
+            margin-right: 10px;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container h1 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 3em;
+            text-shadow: 0 5px #181818;
+            margin-bottom: 40px;
+        }
+
+        .category-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .category-buttons button {
+            background-color: #f6f4f4;
+            border: none;
+            border-radius: 20px;
+            color: #333;
+            padding: 10px 20px;
+            margin: 0 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        .category-buttons button:hover,
+        .category-buttons button.active {
+            background-color: #fa55a8;
+            color: #f6f4f4;
+        }
+
+        .category-buttons button i {
+            margin-right: 5px;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            justify-items: center;
+        }
+
+        @keyframes neon {
+            0% {
+                box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            }
+
+            50% {
+                box-shadow: 0 0 50px rgba(0, 255, 255, 0.8);
+            }
+
+            100% {
+                box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            }
+        }
+
+        .game-card {
+            background-color: rgb(29, 33, 38);
+            border-radius: 10px;
+            overflow: hidden;
+            text-align: center;
+            transition: transform 0.3s;
+            width: 350px;
+            height: 300px;
+
+            margin-top: 50px;
+            animation: neon 2s linear infinite;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: calc(100% + 20px);
+            height: calc(100% + 20px);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            animation: lightning 2s linear infinite;
+        }
+
+        .game-card:hover {
+            transform: scale(1.05);
+        }
+
+        .game-card img {
+            width: 100%;
+            height: 80%;
+            object-fit: cover;
+        }
+
+        .game-card h3 {
+            font-size: 1.5em;
+            color: #f6f4f4;
+        }
+
+        .game-card .cover-image {
+            width: 100%;
+            height: 80%;
+            overflow: hidden;
+        }
+
+        .game-card .cover-image img {
+            width: 100%;
+            height: auto;
+            margin-top: -35px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <i class="fas fa-bars menu-icon" onclick="toggleMenu()"></i>
+        <input type="text" class="search-bar" placeholder="A què juguem?" oninput="filterGamesBySearch()">
+        <i class="fas fa-user user-icon" onclick="toggleUserPanel()"></i>
+    </div>
+    <div class="side-panel" id="side-panel">
+        <ul>
+            <li><a href="favorites.html"><i class="fas fa-star"></i> Destacats</a></li>
+            <li><a href="#" onclick="showFuturePageAlert()"><i class="fas fa-trophy"></i> Rankings</a></li>
+            <li><a href="events-page.html"><i class="fas fa-gamepad"></i> Events i Tornejos</a></li>
+            <li><a href="awards-page.html"><i class="fas fa-medal"></i>Èxits i Recompenses</a></li>
+        </ul>
+        <ul>
+            <li><a href="#" onclick="location.href='game-request.html'"><i class="fas fa-hand-holding-heart"></i> Vols
+                    Contribuir?</a></li>
+            <li><a href="#" onclick="showFuturePageAlert()"><i class="fas fa-cogs"></i> Configuració</a></li>
+        </ul>
+    </div>
+    <div class="user-panel" id="user-panel">
+        <ul>
+            <li><a href="#" onclick="location.href='user-profile.html'"><i class="fas fa-user"></i> Perfil</a></li>
+            <li><a href="#" onclick="showFuturePageAlert()"><i class="fas fa-users"></i> Amics</a></li>
+        </ul>
+        <ul>
+            <li><a href="#" onclick="confirmLogout()"><i class="fas fa-sign-out-alt"></i> Tancar sessió</a></li>
+        </ul>
+    </div>
+    <div class="container">
+        <h1 id="title">
+            <span class="title-letter">A</span>
+            <span class="title-letter">R</span>
+            <span class="title-letter">C</span>
+            <span class="title-letter">A</span>
+            <span class="title-letter">D</span>
+            <span class="title-letter">E</span>
+            <span class="title-space"> </span> <!-- Espacio adicional -->
+            <span class="title-letter">B</span>
+            <span class="title-letter">L</span>
+            <span class="title-letter">A</span>
+            <span class="title-letter">S</span>
+            <span class="title-letter">T</span>
+        </h1>
+        <div class="category-buttons">
+            <button onclick="filterGames('tots')"><i class="fas fa-th"></i> Tots</button>
+            <button onclick="filterGames('accio')"><i class="fas fa-fist-raised"></i> Accio</button>
+            <button onclick="filterGames('aventura')"><i class="fas fa-hiking"></i> Aventura</button>
+            <button onclick="filterGames('estrategia')"><i class="fas fa-chess"></i> Estrategia</button>
+            <button onclick="filterGames('esportiu')"><i class="fas fa-futbol"></i> Esportiu</button>
+        </div>
+        <div class="games-grid">
+            <div class="game-card" data-category="accio" onclick="location.href='brickbreaker-page.html'">
+                <div class="cover-image">
+                    <img src="images/covers/brickBreakerCover.webp" alt="Maze">
+                </div>
+                <h3>Brick Breaker</h3>
+            </div>
+            <div class="game-card" data-category="aventura" onclick="location.href='maze-page.html'">
+                <div class="cover-image">
+                    <img src="images/covers/mazeCover.webp" alt="Maze">
+                </div>
+                <h3>Maze</h3>
+            </div>
+            <div class="game-card" data-category="accio" onclick="location.href='pacman-page.html'">
+                <div class="cover-image">
+                    <img src="images/covers/pacManPortada.jpg" alt="Maze">
+                </div>
+                <h3>Pac-Man</h3>
+            </div>
+            <div class="game-card" data-category="esportiu" onclick="location.href='pong-page.html'">
+                <div class="cover-image">
+                    <img src="images/covers/pongCover.webp" alt="Maze">
+                </div>
+                <h3>Pong Classic</h3>
+            </div>
+            <div class="game-card" data-category="estrategia" onclick="location.href='snake-page.html'">
+                <div class="cover-image">
+                    <img src="images/covers/snakeCover.webp" alt="Maze">
+                </div>
+                <h3>Snake</h3>
+            </div>
+            <div class="game-card" data-category="accio" onclick="location.href='spaceinvaders-page.html'">
+                <div class="cover-image">
+                    <img src="images/covers/spaceInvadersCover.webp" alt="Maze">
+                </div>
+                <h3>Space Invaders</h3>
+            </div>
+            <div class="game-card" data-category="estrategia" onclick="location.href='sudoku-page.html'">
+                <div class="cover-image">
+                    <img src="images/covers/sudokuCover.webp" alt="Maze">
+                </div>
+                <h3>Sudoku</h3>
+            </div>
+            <div class="game-card" data-category="accio" onclick="location.href='mariobros-page.html'">
+                <div class="cover-image">
+                    <img src="images/covers/mariobrosCover.jpeg" alt="Maze">
+                </div>
+                <h3>Super Mario Bros</h3>
+            </div>
+            <div class="game-card" data-category="accio" onclick="location.href='tetris-page.html'">
+                <div class="cover-image">
+                    <img src="images/covers/tetrisCover.webp" alt="Maze">
+                </div>
+                <h3>Tetris</h3>
+            </div>
+            <div class="game-card" data-category="accio" onclick="location.href='tugwar-page.html'">
+                <div class="cover-image">
+                    <img src="images/covers/tugWarCover.webp" alt="Maze">
+                </div>
+                <h3>Tug of War</h3>
+            </div>
+        </div>
+    </div>
+    <div class="down">
+        <div class="footer-content">
+            <p>&copy; 2024 ArcadeBlast. Tots els drets reservats.</p>
+            <p>
+                <a onclick="location.href='privacy-policy.html'">Política de Privacitat</a> |
+                <a onclick="location.href='terms-of-service.html'">Termes de Servei</a> |
+                <a onclick="location.href='contact.html'">Contacte</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('side-panel').classList.toggle('active');
+        }
+
+        function toggleUserPanel() {
+            document.getElementById('user-panel').classList.toggle('active');
+        }
+
+        function showFuturePageAlert() {
+            alert("Aquesta pàgina està en desenvolupament.");
+        }
+
+        function filterGamesBySearch() {
+            const searchText = document.querySelector('.search-bar').value.toLowerCase();
+            const gameCards = document.querySelectorAll('.game-card');
+
+            gameCards.forEach(card => {
+                const gameTitle = card.querySelector('h3').innerText.toLowerCase();
+                if (gameTitle.includes(searchText)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function filterGames(category) {
+            const buttons = document.querySelectorAll('.category-buttons button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            const selectedButton = Array.from(buttons).find(button => button.innerText.toLowerCase().includes(category));
+            if (selectedButton) {
+                selectedButton.classList.add('active');
+            }
+
+            const gameCards = document.querySelectorAll('.game-card');
+            let gamesFound = false;
+
+            gameCards.forEach(card => {
+                if (card.getAttribute('data-category') === category || category === 'tots') {
+                    card.style.display = 'flex';
+                    gamesFound = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (!gamesFound) {
+                const messageContainer = document.createElement('div');
+                messageContainer.innerText = 'No s\'han trobat jocs amb aquest filtre.';
+                messageContainer.classList.add('no-games-message');
+                document.querySelector('.games-grid').appendChild(messageContainer);
+            } else {
+                const existingMessage = document.querySelector('.no-games-message');
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
+            }
+        }
+
+        document.querySelector('.category-buttons button').classList.add('active');
+
+        function confirmLogout() {
+            const logoutConfirmed = confirm('Estàs segur que vols tancar sessió?');
+            if (logoutConfirmed) {
+                window.location.href = 'welcome.html';
+            }
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const letters = document.querySelectorAll('.title-letter');
+            const audio = new Audio('sounds/mario-coin.mp3'); // Ruta al archivo de sonido de la moneda
+
+            letters.forEach(letter => {
+                letter.addEventListener('click', function() {
+                    if (letter.textContent === 'C') {
+                        letter.classList.add('jump');
+                        audio.currentTime = 0;
+                        audio.play();
+
+                        const coin = document.createElement('div');
+                        coin.classList.add('coin');
+                        letter.appendChild(coin);
+
+                        coin.addEventListener('animationend', () => {
+                            coin.remove();
+                        });
+
+                        letter.addEventListener('animationend', () => {
+                            letter.classList.remove('jump');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+    
+</body>
+
+</html>
